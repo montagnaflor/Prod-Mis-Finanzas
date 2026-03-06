@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Mis Finanzas</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --bg:        #f4f6fb;
+  --surface:   #ffffff;
+  --surface2:  #f8f9fc;
+  --border:    #e4e8f0;
+  --text:      #1a1d2e;
+  --muted:     #8892a4;
+  --muted2:    #c2cad8;
+  --purple:    #6c3cf7;
+  --purple-l:  #ede8fe;
+  --green:     #16a34a;
+  --green-l:   #dcfce7;
+  --red:       #dc2626;
+  --red-l:     #fee2e2;
+  --orange:    #ea580c;
+  --orange-l:  #ffedd5;
+  --blue:      #2563eb;
+  --blue-l:    #dbeafe;
+  --teal:      #0d9488;
+  --teal-l:    #ccfbf1;
+  --pink:      #db2777;
+  --pink-l:    #fce7f3;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.06);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: 'Montserrat', sans-serif; min-height: 100vh; font-size: 14px; }
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--muted2); border-radius: 3px; }
+
+#app { max-width: 1060px; margin: 0 auto; padding: 28px 24px; }
+
+/* Header */
+.header { display:flex; justify-content:space-between; align-items:center; margin-bottom:28px; flex-wrap:wrap; gap:12px; }
+.header-left h1 { font-size:26px; font-weight:800; color:var(--text); letter-spacing:-0.5px; }
+.header-left p { font-size:11px; color:var(--muted); margin-top:2px; letter-spacing:1px; text-transform:uppercase; }
+.header-right { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+.btn-link { display:inline-flex; align-items:center; gap:6px; background:var(--surface); border:1px solid var(--border); color:var(--text); padding:7px 14px; border-radius:8px; font-size:12px; font-weight:600; text-decoration:none; font-family:inherit; cursor:pointer; transition:all .15s; box-shadow:var(--shadow-sm); }
+.btn-link:hover { border-color:var(--purple); color:var(--purple); }
+.btn-refresh { background:var(--surface); border:1px solid var(--border); color:var(--muted); padding:7px 12px; border-radius:8px; font-size:12px; font-weight:600; cursor:pointer; font-family:inherit; transition:all .15s; box-shadow:var(--shadow-sm); }
+.btn-refresh:hover { border-color:var(--purple); color:var(--purple); }
+.last-updated { font-size:11px; color:var(--muted); }
+
+/* Tabs */
+.tabs { display:flex; gap:4px; margin-bottom:22px; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:4px; width:fit-content; box-shadow:var(--shadow-sm); }
+.tab { padding:7px 18px; border-radius:7px; font-size:13px; font-weight:600; cursor:pointer; border:none; background:transparent; color:var(--muted); font-family:inherit; transition:all .15s; }
+.tab.active { background:var(--purple); color:#fff; }
+.tab:hover:not(.active) { color:var(--text); }
+
+/* KPIs */
+.kpis { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:22px; }
+.kpi { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:18px 20px; box-shadow:var(--shadow-sm); }
+.kpi-label { font-size:11px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.6px; margin-bottom:8px; }
+.kpi-val { font-size:24px; font-weight:800; letter-spacing:-0.5px; }
+.kpi-sub { font-size:11px; color:var(--muted); margin-top:4px; }
+.kpi-bar { height:4px; border-radius:2px; margin-top:12px; background:var(--border); overflow:hidden; }
+.kpi-bar-fill { height:100%; border-radius:2px; }
+
+/* Body */
+.body { display:grid; grid-template-columns:240px 1fr; gap:14px; align-items:start; }
+
+/* Timeline */
+.timeline { background:var(--surface); border:1px solid var(--border); border-radius:16px; overflow:hidden; box-shadow:var(--shadow-sm); }
+.panel-title { padding:12px 16px; border-bottom:1px solid var(--border); font-size:10px; font-weight:700; color:var(--muted); letter-spacing:1.5px; text-transform:uppercase; }
+.timeline-list { max-height:65vh; overflow-y:auto; }
+.month-row { padding:11px 16px; border-bottom:1px solid var(--bg); cursor:pointer; transition:background .1s; border-left:3px solid transparent; }
+.month-row:hover { background:var(--surface2); }
+.month-row.active { background:var(--purple-l); border-left-color:var(--purple); }
+.month-row-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; }
+.month-name { font-weight:700; font-size:13px; display:flex; align-items:center; gap:6px; }
+.mini-bar-bg { background:var(--border); border-radius:2px; height:3px; overflow:hidden; margin-bottom:5px; }
+.mini-bar-fill { height:100%; border-radius:2px; }
+.tarj-chips { display:flex; gap:4px; flex-wrap:wrap; }
+.chip { font-size:10px; color:var(--muted); background:var(--surface2); padding:2px 7px; border-radius:6px; border:1px solid var(--border); white-space:nowrap; font-weight:500; }
+
+/* Detail */
+.detail { background:var(--surface); border:1px solid var(--border); border-radius:16px; overflow:hidden; box-shadow:var(--shadow-sm); }
+.detail-header { padding:18px 22px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap; }
+.detail-month { font-size:22px; font-weight:800; letter-spacing:-0.5px; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.detail-sub { font-size:12px; color:var(--muted); margin-top:3px; }
+.detail-total { font-size:28px; font-weight:800; letter-spacing:-0.5px; text-align:right; }
+.filter-row { display:flex; gap:5px; justify-content:flex-end; margin-top:8px; flex-wrap:wrap; }
+.filter-btn { border:1px solid var(--border); border-radius:6px; padding:3px 10px; font-size:11px; font-weight:600; cursor:pointer; background:transparent; color:var(--muted); font-family:inherit; transition:all .15s; }
+.filter-btn.active { background:var(--purple); color:#fff; border-color:var(--purple); }
+
+/* Balance bar */
+.balance-bar { padding:14px 22px; border-bottom:1px solid var(--border); display:grid; grid-template-columns:repeat(3,1fr); gap:12px; background:var(--surface2); }
+.bal-item { text-align:center; }
+.bal-label { font-size:10px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.6px; margin-bottom:4px; }
+.bal-val { font-size:17px; font-weight:800; }
+
+/* Donut */
+.donut-area { padding:16px 22px; border-bottom:1px solid var(--border); display:flex; gap:20px; align-items:center; }
+.donut-legend { display:flex; flex-direction:column; gap:6px; flex:1; }
+.legend-row { display:flex; align-items:center; gap:8px; }
+.legend-dot { width:9px; height:9px; border-radius:2px; flex-shrink:0; }
+.legend-name { flex:1; font-size:12px; color:var(--text); font-weight:500; }
+.legend-val { font-size:12px; font-weight:700; color:var(--muted); }
+
+/* Items */
+.items-list { max-height:42vh; overflow-y:auto; }
+.section-header { padding:8px 22px; background:var(--surface2); border-bottom:1px solid var(--border); border-top:1px solid var(--border); font-size:10px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:1px; display:flex; justify-content:space-between; align-items:center; }
+.item-row { padding:11px 22px; border-bottom:1px solid var(--bg); display:grid; grid-template-columns:10px 1fr auto; gap:12px; align-items:center; transition:background .1s; }
+.item-row:hover { background:var(--surface2); }
+.item-dot { width:10px; height:10px; border-radius:3px; flex-shrink:0; }
+.item-name-row { font-weight:600; font-size:13px; display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:3px; }
+.item-meta { font-size:11px; color:var(--muted); }
+.item-amount { font-weight:700; font-size:14px; text-align:right; }
+.item-of { font-size:10px; color:var(--muted); text-align:right; }
+
+/* Tarjeta footer */
+.tarj-footer { padding:14px 22px; border-top:1px solid var(--border); display:flex; gap:10px; align-items:center; flex-wrap:wrap; background:var(--surface2); }
+.tarj-card { background:var(--surface); border:1px solid var(--border); border-radius:9px; padding:6px 14px; }
+.tarj-card-name { font-size:10px; color:var(--muted); font-weight:600; }
+.tarj-card-val { font-size:14px; font-weight:800; color:var(--orange); }
+
+/* Ingresos */
+.income-list { overflow-y:auto; }
+.income-row { padding:11px 22px; border-bottom:1px solid var(--bg); display:flex; justify-content:space-between; align-items:center; transition:background .1s; }
+.income-row:hover { background:var(--surface2); }
+.income-source { font-weight:600; font-size:13px; }
+.income-meta { font-size:11px; color:var(--muted); margin-top:2px; }
+.income-amount { font-weight:800; font-size:15px; color:var(--green); }
+
+/* ── Compartido styles ── */
+.persona-cards { display:grid; grid-template-columns:1fr 1fr; gap:12px; padding:16px 22px; border-bottom:1px solid var(--border); background:var(--surface2); }
+.persona-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:14px 16px; }
+.persona-avatar { width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:800; color:#fff; margin-bottom:8px; }
+.persona-name { font-size:12px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; margin-bottom:4px; }
+.persona-total { font-size:20px; font-weight:800; }
+.persona-sub { font-size:11px; color:var(--muted); margin-top:2px; }
+.persona-pending { font-size:11px; font-weight:700; margin-top:6px; padding:3px 8px; border-radius:6px; display:inline-block; }
+
+.pending-banner { padding:12px 22px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:10px; }
+.pending-icon { font-size:18px; }
+.pending-text { font-size:13px; font-weight:600; }
+.pending-amount { font-size:16px; font-weight:800; margin-left:auto; }
+
+.not-connected { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:28px; gap:8px; text-align:center; background:var(--surface2); border-radius:10px; margin:16px 22px; border:2px dashed var(--border); }
+.not-connected p { font-size:12px; color:var(--muted); line-height:1.6; }
+
+/* Tag */
+.tag { font-size:10px; font-weight:700; padding:2px 8px; border-radius:20px; white-space:nowrap; }
+
+/* Loading / Error */
+#loading { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:70vh; gap:16px; }
+.spinner { width:36px; height:36px; border:3px solid var(--border); border-top-color:var(--purple); border-radius:50%; animation:spin .8s linear infinite; }
+@keyframes spin { to { transform:rotate(360deg); } }
+.error-screen { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:60vh; gap:14px; text-align:center; }
+.error-box { background:var(--red-l); border:1px solid #fca5a5; color:var(--red); border-radius:12px; padding:16px 22px; font-size:13px; max-width:480px; line-height:1.7; }
+.empty { display:flex; align-items:center; justify-content:center; height:200px; color:var(--muted); font-size:13px; }
+
+@media (max-width:700px) {
+  .kpis { grid-template-columns:1fr 1fr; }
+  .body { grid-template-columns:1fr; }
+  #app { padding:16px; }
+  .persona-cards { grid-template-columns:1fr; }
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="header">
+    <div class="header-left">
+      <h1>Mis Finanzas</h1>
+      <p>Tracker personal · Proyección de cuotas</p>
+    </div>
+    <div class="header-right">
+      <a class="btn-link" href="https://docs.google.com/spreadsheets/d/1WSh1ctO0sZYyKVsDttPzPLNhlZNCUSh-W9C3tgPj_XU/edit?gid=721739872#gid=721739872" target="_blank">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Ver registros
+      </a>
+      <button class="btn-refresh" onclick="fetchData()">↻ Actualizar</button>
+      <span class="last-updated" id="last-updated"></span>
+    </div>
+  </div>
+
+  <div id="loading">
+    <div class="spinner"></div>
+    <div style="font-size:14px;font-weight:600;color:var(--muted)">Cargando tus finanzas...</div>
+  </div>
+
+  <div id="dashboard" style="display:none">
+    <div class="tabs">
+      <button class="tab active" data-tab="gastos"      onclick="switchTab('gastos')">Gastos</button>
+      <button class="tab"        data-tab="ingresos"    onclick="switchTab('ingresos')">Ingresos</button>
+      <button class="tab"        data-tab="balance"     onclick="switchTab('balance')">Balance</button>
+      <button class="tab"        data-tab="compartido"  onclick="switchTab('compartido')">🏠 Compartido</button>
+    </div>
+    <div class="kpis" id="kpis"></div>
+    <div class="body">
+      <div class="timeline">
+        <div class="panel-title">Línea de tiempo</div>
+        <div class="timeline-list" id="timeline-list"></div>
+      </div>
+      <div id="detail-panel" class="detail"></div>
+    </div>
+  </div>
+
+  <div id="error-screen" style="display:none" class="error-screen">
+    <div style="font-size:40px">😕</div>
+    <div class="error-box" id="error-msg"></div>
+    <button class="btn-refresh" style="padding:10px 20px" onclick="fetchData()">↻ Reintentar</button>
+  </div>
+</div>
+
+<script>
+// ── Config ────────────────────────────────────────────────────────────────────
+const APIS = {
+  flor: "https://script.google.com/macros/s/AKfycbyDg69ObxMyOQejte0TgVf7eoSUsnURPLk7zk9YPo-Cx4lpAu8ZdBd8Qrke1S2JG_pMjg/exec?key=Tango3",
+  majo: "https://script.google.com/macros/s/AKfycbyNlxyNIs9TUqf6vE4bggBbPFNeHYRfWUb7PmLnyGo_iF3zIQy7dSmjDD47ZLY1vB98/exec?key=BiyuKey",
+};
+
+const PERSONAS = {
+  majo: { nombre: "Majo", color: "#6c3cf7", bg: "#ede8fe", initials: "M" },
+  flor: { nombre: "Flor", color: "#db2777", bg: "#fce7f3", initials: "F" },
+};
+
+const MESES   = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
+const COLORES = {
+  "Impuestos":"#f87171","Salidas":"#fb923c","Supermercado/ Compras":"#facc15",
+  "Supermercado":"#facc15","Mascotas":"#a78bfa","Ropa":"#f472b6",
+  "Transporte":"#60a5fa","Salud":"#34d399","Entretenimiento":"#fb7185",
+  "Servicios de la Casa":"#6c3cf7","Educación":"#c084fc","Servicios":"#38bdf8",
+};
+const cc  = s => COLORES[s] || "#94a3b8";
+const mk  = (y,m) => `${y}-${String(m+1).padStart(2,"0")}`;
+const lbl = k => { const [y,m]=k.split("-"); return `${MESES[+m-1]} ${y}`; };
+const fmt = n => Math.round(n).toLocaleString("es-AR");
+const now = new Date();
+const hoy = mk(now.getFullYear(), now.getMonth());
+
+let state = {
+  gastos:[], ingresos:[], compartido:[],
+  meses:[], ingMeses:{}, compMeses:{},
+  selKey:null, filtTarj:"todas", tab:"gastos",
+  majoConectada: false,
+};
+
+// ── Parse ─────────────────────────────────────────────────────────────────────
+function parseRows(rows, persona) {
+  const gastos=[], ingresos=[], compartido=[];
+  rows.forEach((r, idx) => {
+    let fecha = null;
+    const raw = (r["Fecha"]||"").toString().trim();
+    if (raw.includes("T")) fecha = new Date(raw);
+    else if (raw.includes("/")) {
+      const [d,m,y]=raw.split("/");
+      fecha = new Date(`${y.length===2?"20"+y:y}-${m.padStart(2,"0")}-${d.padStart(2,"0")}T12:00:00`);
+    } else if (raw.includes("-")) fecha = new Date(raw.length===10?raw+"T12:00:00":raw);
+    if (!fecha||isNaN(fecha)) return;
+
+    const monto    = parseFloat(r["Monto"]||0)||0;
+    const tipoReg  = (r["Tipo de Registro"]||"").toString().trim();
+    const fuente   = (r["Fuente de Ingreso"]||"").toString().trim();
+    const tipoGasto= (r["Tipo de Gasto"]||"").toString().trim();
+
+    // Ingreso
+    if (tipoReg==="Ingreso"||fuente) {
+      ingresos.push({ id:idx, fecha, monto, fuente:fuente||"Ingreso", key:mk(fecha.getFullYear(),fecha.getMonth()) });
+      return;
+    }
+
+    const cuotas  = parseInt(r["Cuotas"])||1;
+    const primer  = parseInt(r["Mes de pago de primer cuota"])||null;
+    const tarjeta = (r["Tarjetas"]||"").toString().trim()||null;
+    const sub     = (r["Sub Categoría de Gasto"]||r["Sub Categoría"]||r["Categoría de Gasto"]||"").toString().trim();
+    const cat     = (r["Categoría de Gasto"]||"").toString().trim();
+    const tipo    = tipoGasto;
+    const desc    = (r["Descripción Opcional"]||"").toString().trim();
+    const reflex  = (r["Este Gasto, es realmente un gasto Necesario para vos?"]||"").toString().trim();
+    const servicio= (r["Servicio"]||"").toString().trim();
+
+    let sy=fecha.getFullYear(), sm=fecha.getMonth();
+    if (tarjeta&&primer) { sm=primer-1; if(sm<fecha.getMonth()) sy+=1; }
+
+    const inst = Array.from({length:cuotas},(_,c)=>({
+      key: mk(sy+Math.floor((sm+c)/12),(sm+c)%12),
+      monto: monto/cuotas, num:c+1,
+    }));
+
+    const base = { id:idx, fecha, monto, tipo, cat, sub:sub||cat, desc, tarjeta, cuotas, inst, reflex, servicio, persona };
+
+    // Compartido = Tipo de Gasto "Compartido"
+    if (tipoGasto==="Compartido") {
+      compartido.push(base);
+    } else {
+      gastos.push(base);
+    }
+  });
+  return { gastos, ingresos, compartido };
+}
+
+function buildMeses(gastos) {
+  const map={};
+  gastos.forEach(g=>g.inst.forEach(({key,monto,num})=>{
+    if(!map[key]) map[key]={key,total:0,items:[],cats:{},tarjs:{}};
+    map[key].total+=monto;
+    map[key].items.push({...g,cm:monto,num});
+    map[key].cats[g.sub]=(map[key].cats[g.sub]||0)+monto;
+    if(g.tarjeta) map[key].tarjs[g.tarjeta]=(map[key].tarjs[g.tarjeta]||0)+monto;
+  }));
+  return Object.values(map).sort((a,b)=>a.key.localeCompare(b.key));
+}
+
+function buildIngMeses(ingresos) {
+  const map={};
+  ingresos.forEach(i=>{
+    if(!map[i.key]) map[i.key]={total:0,items:[]};
+    map[i.key].total+=i.monto;
+    map[i.key].items.push(i);
+  });
+  return map;
+}
+
+function buildCompMeses(compartido) {
+  const map={};
+  compartido.forEach(g=>g.inst.forEach(({key,monto,num})=>{
+    if(!map[key]) map[key]={key,total:0,items:[],cats:{},tarjs:{},porPersona:{}};
+    map[key].total+=monto;
+    map[key].items.push({...g,cm:monto,num});
+    map[key].cats[g.sub]=(map[key].cats[g.sub]||0)+monto;
+    if(g.tarjeta) map[key].tarjs[g.tarjeta]=(map[key].tarjs[g.tarjeta]||0)+monto;
+    const p=g.persona||"majo";
+    map[key].porPersona[p]=(map[key].porPersona[p]||0)+monto;
+  }));
+  return Object.values(map).sort((a,b)=>a.key.localeCompare(b.key));
+}
+
+// ── Fetch ─────────────────────────────────────────────────────────────────────
+async function fetchData() {
+  document.getElementById("loading").style.display     ="flex";
+  document.getElementById("dashboard").style.display   ="none";
+  document.getElementById("error-screen").style.display="none";
+  try {
+    // Fetch Flor (siempre — es la dueña de esta app)
+    const resFlor = await fetch(APIS.flor);
+    if (!resFlor.ok) throw new Error(`HTTP ${resFlor.status}`);
+    const jsonFlor = await resFlor.json();
+    const parsedFlor = parseRows(jsonFlor, "flor");
+
+    // Fetch Majo (si está configurada)
+    let parsedMajo = { gastos:[], ingresos:[], compartido:[] };
+    let majoConectada = false;
+    if (APIS.majo) {
+      try {
+        const resMajo = await fetch(APIS.majo);
+        const jsonMajo = await resMajo.json();
+        parsedMajo = parseRows(jsonMajo, "majo");
+        majoConectada = true;
+      } catch(e) { console.warn("No se pudo conectar con el form de Majo", e); }
+    }
+
+    const gastos     = [...parsedFlor.gastos,     ...parsedMajo.gastos];
+    const ingresos   = [...parsedFlor.ingresos,   ...parsedMajo.ingresos];
+    const compartido = [...parsedFlor.compartido, ...parsedMajo.compartido];
+
+    const meses    = buildMeses(gastos);
+    const ingMeses = buildIngMeses(ingresos);
+    const compMeses= buildCompMeses(compartido);
+
+    const allKeys  = [...new Set([...meses.map(m=>m.key),...compMeses.map(m=>m.key)])].sort();
+    const primerFuturo = allKeys.find(k=>k>=hoy)||allKeys[0];
+
+    state = { gastos, ingresos, compartido, meses, ingMeses, compMeses, selKey:primerFuturo, filtTarj:"todas", tab:state.tab, majoConectada };
+
+    const t=new Date();
+    document.getElementById("last-updated").textContent=`Actualizado ${t.toLocaleTimeString("es-AR",{hour:"2-digit",minute:"2-digit"})}`;
+    document.getElementById("loading").style.display   ="none";
+    document.getElementById("dashboard").style.display ="block";
+    renderAll();
+  } catch(e) {
+    document.getElementById("loading").style.display      ="none";
+    document.getElementById("error-screen").style.display ="flex";
+    document.getElementById("error-msg").innerHTML=`<strong>No se pudo conectar</strong><br><br>${e.message}`;
+  }
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+const tag = (txt,bg,c) => `<span class="tag" style="background:${bg};color:${c}">${txt}</span>`;
+
+function reflexTag(r) {
+  if (!r) return "";
+  if (r.toLowerCase().includes("no")) return tag("No necesario","#fee2e2","#dc2626");
+  if (r.toLowerCase().includes("sí")||r.toLowerCase().includes("si")) return tag("Necesario","#dcfce7","#16a34a");
+  return "";
+}
+
+function personaTag(p) {
+  if (!p) return "";
+  const info = PERSONAS[p];
+  if (!info) return "";
+  return tag(info.nombre, info.bg, info.color);
+}
+
+function donutSVG(cats, size=100) {
+  const entries=Object.entries(cats).sort((a,b)=>b[1]-a[1]);
+  const total=entries.reduce((s,[,v])=>s+v,0);
+  if(!total) return "";
+  let ang=-Math.PI/2;
+  const cx=50,cy=50,R=42,ri=24;
+  let paths="";
+  entries.forEach(([name,val])=>{
+    const a=(val/total)*Math.PI*2;
+    const [c1,s1,c2,s2]=[Math.cos(ang),Math.sin(ang),Math.cos(ang+a),Math.sin(ang+a)];
+    const lg=a>Math.PI?1:0;
+    paths+=`<path d="M${cx+ri*c1},${cy+ri*s1}L${cx+R*c1},${cy+R*s1}A${R},${R},0,${lg},1,${cx+R*c2},${cy+R*s2}L${cx+ri*c2},${cy+ri*s2}A${ri},${ri},0,${lg},0,${cx+ri*c1},${cy+ri*s1}Z" fill="${cc(name)}"/>`;
+    ang+=a;
+  });
+  return `<svg width="${size}" height="${size}" viewBox="0 0 100 100" style="flex-shrink:0">${paths}
+    <text x="50" y="54" text-anchor="middle" fill="#1a1d2e" font-size="11" font-weight="700" font-family="Montserrat,sans-serif">${entries.length}</text></svg>`;
+}
+
+function switchTab(tab) {
+  state.tab=tab;
+  document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active",t.dataset.tab===tab));
+  renderAll();
+}
+
+// ── Render ────────────────────────────────────────────────────────────────────
+function renderAll() {
+  const { gastos, ingresos, compartido, meses, ingMeses, compMeses, selKey, filtTarj, tab, majoConectada } = state;
+  const tarjetas   = [...new Set(gastos.map(g=>g.tarjeta).filter(Boolean))];
+  const maxT       = Math.max(...meses.map(m=>m.total),1);
+  const futuro     = gastos.reduce((s,g)=>s+g.inst.filter(c=>c.key>hoy).reduce((a,c)=>a+c.monto,0),0);
+  const totalGastos   = gastos.reduce((s,g)=>s+g.monto,0);
+  const totalIngresos = ingresos.reduce((s,i)=>s+i.monto,0);
+  const totalComp     = compartido.reduce((s,g)=>s+g.monto,0);
+  const balance       = totalIngresos - totalGastos;
+
+  // ── KPIs ──
+  let kpisHTML="";
+  if (tab==="gastos") {
+    const noNec=gastos.filter(g=>g.reflex&&g.reflex.toLowerCase().includes("no")).reduce((s,g)=>s+g.monto,0);
+    kpisHTML=[
+      {l:"Total gastos",   v:"$"+fmt(totalGastos), sub:"histórico",       c:"var(--red)",    bar:100,                                            bc:"var(--red)"},
+      {l:"Comprometido",   v:"$"+fmt(futuro),       sub:"cuotas futuras",  c:"var(--orange)", bar:Math.min(100,futuro/Math.max(totalGastos,1)*100),bc:"var(--orange)"},
+      {l:"No necesarios",  v:"$"+fmt(noNec),        sub:"según reflexión", c:"var(--purple)", bar:Math.min(100,noNec/Math.max(totalGastos,1)*100), bc:"var(--purple)"},
+    ].map(k=>`<div class="kpi"><div class="kpi-label">${k.l}</div><div class="kpi-val" style="color:${k.c}">${k.v}</div><div class="kpi-sub">${k.sub}</div><div class="kpi-bar"><div class="kpi-bar-fill" style="width:${k.bar}%;background:${k.bc}"></div></div></div>`).join("");
+  } else if (tab==="ingresos") {
+    kpisHTML=[
+      {l:"Total ingresos",   v:"$"+fmt(totalIngresos), sub:"histórico",    c:"var(--green)"},
+      {l:"Promedio mensual", v:"$"+fmt(totalIngresos/Math.max(Object.keys(ingMeses).length,1)), sub:"por mes", c:"var(--blue)"},
+      {l:"Meses registrados",v:Object.keys(ingMeses).length, sub:"con ingresos", c:"var(--purple)"},
+    ].map(k=>`<div class="kpi"><div class="kpi-label">${k.l}</div><div class="kpi-val" style="color:${k.c}">${k.v}</div><div class="kpi-sub">${k.sub}</div></div>`).join("");
+  } else if (tab==="balance") {
+    const bc=balance>=0?"var(--green)":"var(--red)";
+    kpisHTML=[
+      {l:"Ingresos", v:"$"+fmt(totalIngresos), c:"var(--green)"},
+      {l:"Gastos",   v:"$"+fmt(totalGastos),   c:"var(--red)"},
+      {l:"Balance",  v:(balance>=0?"+":"")+fmt(balance), c:bc},
+    ].map(k=>`<div class="kpi"><div class="kpi-label">${k.l}</div><div class="kpi-val" style="color:${k.c}">${k.v}</div></div>`).join("");
+  } else if (tab==="compartido") {
+    const majoPago = compartido.filter(g=>g.persona==="majo").reduce((s,g)=>s+g.monto,0);
+    const florPago  = compartido.filter(g=>g.persona==="flor").reduce((s,g)=>s+g.monto,0);
+    kpisHTML=[
+      {l:"Total compartido", v:"$"+fmt(totalComp),  sub:"entre las dos",  c:"var(--teal)"},
+      {l:"Pagó Flor",        v:"$"+fmt(florPago),   sub:`${totalComp>0?Math.round(florPago/totalComp*100):0}% del total`, c:PERSONAS.flor.color},
+      {l:"Pagó Majo",        v:majoConectada?"$"+fmt(majoPago):"—",  sub:majoConectada?`${totalComp>0?Math.round(majoPago/totalComp*100):0}% del total`:"pendiente de conectar", c:PERSONAS.majo.color},
+    ].map(k=>`<div class="kpi"><div class="kpi-label">${k.l}</div><div class="kpi-val" style="color:${k.c}">${k.v}</div><div class="kpi-sub">${k.sub}</div></div>`).join("");
+  }
+  document.getElementById("kpis").innerHTML=kpisHTML;
+
+  // ── Timeline ──
+  let timelineKeys=[];
+  if (tab==="compartido") {
+    timelineKeys = compMeses.map(m=>m.key);
+  } else {
+    const allKeys=[...new Set([...meses.map(m=>m.key),...Object.keys(ingMeses)])].sort();
+    timelineKeys=allKeys;
+  }
+
+  const maxTL = tab==="compartido"
+    ? Math.max(...compMeses.map(m=>m.total),1)
+    : Math.max(...meses.map(m=>m.total),1);
+
+  document.getElementById("timeline-list").innerHTML = timelineKeys.map(key=>{
+    const m    = tab==="compartido" ? compMeses.find(x=>x.key===key) : meses.find(x=>x.key===key);
+    const total= m?.total||0;
+    const fut=key>hoy, cur=key===hoy, act=key===selKey;
+    const barColor= tab==="compartido"?"var(--teal)":fut?"var(--orange)":"var(--purple)";
+    const totalColor= tab==="compartido"?"var(--teal)":fut?"var(--orange)":"var(--red)";
+    return `<div class="month-row ${act?"active":""}" data-key="${key}">
+      <div class="month-row-top">
+        <div class="month-name">${lbl(key)}
+          ${cur?tag("HOY","#dbeafe","#2563eb"):""}
+          ${fut?tag("FUTURO","#ede8fe","#6c3cf7"):""}
+        </div>
+        <div style="font-size:12px;font-weight:700;color:${totalColor}">$${fmt(total)}</div>
+      </div>
+      <div class="mini-bar-bg"><div class="mini-bar-fill" style="width:${(total/maxTL)*100}%;background:${barColor}"></div></div>
+      ${m?.tarjs?`<div class="tarj-chips">${Object.entries(m.tarjs).map(([t,v])=>`<span class="chip">${t} $${fmt(v)}</span>`).join("")}</div>`:""}
+    </div>`;
+  }).join("");
+
+  document.querySelectorAll(".month-row").forEach(el=>{
+    el.addEventListener("click",()=>{ state.selKey=el.dataset.key; state.filtTarj="todas"; renderDetail(); renderTimeline(); });
+  });
+
+  renderDetail();
+}
+
+function renderTimeline() {
+  document.querySelectorAll(".month-row").forEach(el=>{
+    el.classList.toggle("active", el.dataset.key===state.selKey);
+  });
+}
+
+function renderDetail() {
+  const { meses, ingMeses, compMeses, selKey, filtTarj, tab, majoConectada } = state;
+  const tarjetas=[...new Set(state.gastos.map(g=>g.tarjeta).filter(Boolean))];
+
+  // ── COMPARTIDO tab ──
+  if (tab==="compartido") {
+    const m = compMeses.find(x=>x.key===selKey);
+    if (!m) { document.getElementById("detail-panel").innerHTML=`<div class="empty">Sin gastos compartidos este mes</div>`; return; }
+
+    const majoPago = m.porPersona?.majo||0;
+    const florPago  = m.porPersona?.flor||0;
+    const diff      = majoPago - florPago;
+
+    // Separar Casa vs Otros
+    const gastosCasa  = m.items.filter(i => i.cat==="Variable"&&i.sub.toLowerCase().includes("casa") || i.sub.toLowerCase().includes("servicio") || i.servicio);
+    const gastosOtros = m.items.filter(i => !gastosCasa.includes(i));
+    const catsCasa  = gastosCasa.reduce((o,i)=>{o[i.sub]=(o[i.sub]||0)+i.cm;return o;},{});
+    const catsOtros = gastosOtros.reduce((o,i)=>{o[i.sub]=(o[i.sub]||0)+i.cm;return o;},{});
+
+    document.getElementById("detail-panel").innerHTML = `
+      <div class="detail-header">
+        <div>
+          <div class="detail-month">${lbl(m.key)} ${m.key>hoy?tag("Proyectado","#ede8fe","#6c3cf7"):""}</div>
+          <div class="detail-sub">${m.items.length} gasto${m.items.length!==1?"s":""} compartido${m.items.length!==1?"s":""}</div>
+        </div>
+        <div class="detail-total" style="color:var(--teal)">$${fmt(m.total)}</div>
+      </div>
+
+      <!-- Quién pagó -->
+      <div class="persona-cards">
+        <div class="persona-card">
+          <div class="persona-avatar" style="background:${PERSONAS.flor.color}">${PERSONAS.flor.initials}</div>
+          <div class="persona-name">Flor</div>
+          <div class="persona-total" style="color:${PERSONAS.flor.color}">$${fmt(florPago)}</div>
+          <div class="persona-sub">${m.total>0?Math.round(florPago/m.total*100):0}% del mes</div>
+        </div>
+        <div class="persona-card" style="${!majoConectada?"opacity:.55":""}">
+          <div class="persona-avatar" style="background:${PERSONAS.majo.color}">${PERSONAS.majo.initials}</div>
+          <div class="persona-name">Majo</div>
+          <div class="persona-total" style="color:${PERSONAS.majo.color}">${majoConectada?"$"+fmt(majoPago):"—"}</div>
+          <div class="persona-sub">${majoConectada?m.total>0?Math.round(majoPago/m.total*100)+"% del mes":"0%":"Pendiente de conectar"}</div>
+        </div>
+      </div>
+
+      
+      ${!majoConectada?`
+      <div style="padding:0 22px 16px">
+        <div class="not-connected">
+          <div style="font-size:28px">🔗</div>
+          <p><strong>El form de Flor todavía no está conectado.</strong><br>
+          Cuando lo agregues, acá vas a ver automáticamente cuánto pagó Flor y el balance entre las dos.</p>
+        </div>
+      </div>`:`
+      ${Math.abs(diff)>0?`<div class="pending-banner" style="background:${diff>0?"var(--orange-l)":"var(--teal-l)"}">
+        <div class="pending-icon">${diff>0?"💸":"✅"}</div>
+        <div class="pending-text" style="color:${diff>0?"var(--orange)":"var(--teal)"}">
+          ${diff>0?`Flor le debe a Majo`:`Majo le debe a Flor`}
+        </div>
+        <div class="pending-amount" style="color:${diff>0?"var(--orange)":"var(--teal)"}">$${fmt(Math.abs(diff))}</div>
+      </div>`:""}
+      `}
+  
+      <!-- Gastos de la Casa -->
+      ${gastosCasa.length>0?`
+      <div class="section-header">
+        <span>🏠 Gastos de la Casa</span>
+        <span style="color:var(--text);font-weight:700">$${fmt(gastosCasa.reduce((s,i)=>s+i.cm,0))}</span>
+      </div>
+      ${Object.keys(catsCasa).length>1?`<div class="donut-area" style="padding:12px 22px">${donutSVG(catsCasa,80)}<div class="donut-legend">
+        ${Object.entries(catsCasa).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([name,val])=>`<div class="legend-row">
+          <div class="legend-dot" style="background:${cc(name)}"></div>
+          <span class="legend-name">${name}</span>
+          <span class="legend-val">$${fmt(val)}</span>
+        </div>`).join("")}
+      </div></div>`:""}
+      <div>
+        ${gastosCasa.map(item=>`<div class="item-row">
+          <div class="item-dot" style="background:${cc(item.sub)}"></div>
+          <div>
+            <div class="item-name-row">${item.sub||"Sin categoría"}
+              ${personaTag(item.persona)}
+              ${item.tarjeta?tag(item.tarjeta,"#f1f5f9","#64748b"):""}
+              ${item.cuotas>1?tag(`cuota ${item.num}/${item.cuotas}`,"#dcfce7","#16a34a"):""}
+              ${item.servicio?tag(item.servicio,"#f0fdf4","#16a34a"):""}
+            </div>
+            <div class="item-meta">${item.fecha.toLocaleDateString("es-AR",{day:"2-digit",month:"short",year:"numeric"})}${item.desc?` · ${item.desc}`:""}</div>
+          </div>
+          <div>
+            <div class="item-amount">$${fmt(item.cm)}</div>
+            ${item.cuotas>1?`<div class="item-of">de $${fmt(item.monto)}</div>`:""}
+          </div>
+        </div>`).join("")}
+      </div>`:""}
+
+      <!-- Otros gastos compartidos -->
+      ${gastosOtros.length>0?`
+      <div class="section-header">
+        <span>🛍 Otros gastos compartidos</span>
+        <span style="color:var(--text);font-weight:700">$${fmt(gastosOtros.reduce((s,i)=>s+i.cm,0))}</span>
+      </div>
+      <div>
+        ${gastosOtros.map(item=>`<div class="item-row">
+          <div class="item-dot" style="background:${cc(item.sub)}"></div>
+          <div>
+            <div class="item-name-row">${item.sub||"Sin categoría"}
+              ${personaTag(item.persona)}
+              ${item.tarjeta?tag(item.tarjeta,"#f1f5f9","#64748b"):""}
+              ${item.cuotas>1?tag(`cuota ${item.num}/${item.cuotas}`,"#dcfce7","#16a34a"):""}
+            </div>
+            <div class="item-meta">${item.fecha.toLocaleDateString("es-AR",{day:"2-digit",month:"short",year:"numeric"})}${item.desc?` · ${item.desc}`:""}</div>
+          </div>
+          <div>
+            <div class="item-amount">$${fmt(item.cm)}</div>
+            ${item.cuotas>1?`<div class="item-of">de $${fmt(item.monto)}</div>`:""}
+          </div>
+        </div>`).join("")}
+      </div>`:""}
+    `;
+    return;
+  }
+
+  // ── INGRESOS tab ──
+  if (tab==="ingresos") {
+    const ingData=ingMeses[selKey];
+    if (!ingData) { document.getElementById("detail-panel").innerHTML=`<div class="empty">Sin ingresos este mes</div>`; return; }
+    document.getElementById("detail-panel").innerHTML=`
+      <div class="detail-header">
+        <div><div class="detail-month">${lbl(selKey)}</div><div class="detail-sub">${ingData.items.length} ingreso${ingData.items.length!==1?"s":""}</div></div>
+        <div class="detail-total" style="color:var(--green)">$${fmt(ingData.total)}</div>
+      </div>
+      <div class="income-list">${ingData.items.map(i=>`<div class="income-row">
+        <div><div class="income-source">${i.fuente}</div><div class="income-meta">${i.fecha.toLocaleDateString("es-AR",{day:"2-digit",month:"short",year:"numeric"})}</div></div>
+        <div class="income-amount">+$${fmt(i.monto)}</div>
+      </div>`).join("")}</div>`;
+    return;
+  }
+
+  // ── BALANCE tab ──
+  if (tab==="balance") {
+    const selData=meses.find(m=>m.key===selKey);
+    const ingData=ingMeses[selKey];
+    const gasto=selData?.total||0, ingreso=ingData?.total||0, bal=ingreso-gasto;
+    document.getElementById("detail-panel").innerHTML=`
+      <div class="detail-header">
+        <div><div class="detail-month">${lbl(selKey||hoy)}</div><div class="detail-sub">Resumen del mes</div></div>
+      </div>
+      <div class="balance-bar">
+        <div class="bal-item"><div class="bal-label">Ingresos</div><div class="bal-val" style="color:var(--green)">+$${fmt(ingreso)}</div></div>
+        <div class="bal-item"><div class="bal-label">Gastos</div><div class="bal-val" style="color:var(--red)">-$${fmt(gasto)}</div></div>
+        <div class="bal-item"><div class="bal-label">Balance</div><div class="bal-val" style="color:${bal>=0?"var(--green)":"var(--red)"}">${bal>=0?"+":""} $${fmt(bal)}</div></div>
+      </div>
+      ${selData?`<div class="section-header"><span>Gastos del mes</span></div><div class="items-list">${selData.items.map(item=>`<div class="item-row">
+        <div class="item-dot" style="background:${cc(item.sub)}"></div>
+        <div><div class="item-name-row">${item.sub||item.cat||"Sin categoría"}${item.tarjeta?tag(item.tarjeta,"#f1f5f9","#64748b"):""}${item.cuotas>1?tag(`cuota ${item.num}/${item.cuotas}`,"#dcfce7","#16a34a"):""}</div>
+        <div class="item-meta">${item.fecha.toLocaleDateString("es-AR",{day:"2-digit",month:"short",year:"numeric"})}</div></div>
+        <div class="item-amount">$${fmt(item.cm)}</div>
+      </div>`).join("")}</div>`:""}
+      ${ingData?`<div class="section-header"><span>Ingresos del mes</span></div><div class="income-list">${ingData.items.map(i=>`<div class="income-row"><div><div class="income-source">${i.fuente}</div></div><div class="income-amount">+$${fmt(i.monto)}</div></div>`).join("")}</div>`:""}
+    `;
+    return;
+  }
+
+  // ── GASTOS tab (default) ──
+  const selData=meses.find(m=>m.key===selKey);
+  if (!selData) { document.getElementById("detail-panel").innerHTML=`<div class="empty">Sin gastos este mes</div>`; return; }
+
+  let d=selData;
+  if (filtTarj!=="todas") {
+    const items=selData.items.filter(i=>i.tarjeta===filtTarj);
+    d={...selData,items,total:items.reduce((s,i)=>s+i.cm,0),
+      cats:items.reduce((o,i)=>{o[i.sub]=(o[i.sub]||0)+i.cm;return o;},{}),
+      tarjs:items.reduce((o,i)=>{if(i.tarjeta)o[i.tarjeta]=(o[i.tarjeta]||0)+i.cm;return o;},{})};
+  }
+
+  const catEntries=Object.entries(d.cats).sort((a,b)=>b[1]-a[1]);
+  const ingMes=ingMeses[selKey];
+
+  document.getElementById("detail-panel").innerHTML=`
+    <div class="detail-header">
+      <div>
+        <div class="detail-month">${lbl(d.key)} ${d.key>hoy?tag("Proyectado","#ede8fe","#6c3cf7"):""}</div>
+        <div class="detail-sub">${d.items.length} movimiento${d.items.length!==1?"s":""}</div>
+      </div>
+      <div>
+        <div class="detail-total" style="color:var(--red)">$${fmt(d.total)}</div>
+        ${tarjetas.length>0?`<div class="filter-row">${["todas",...tarjetas].map(t=>`<button class="filter-btn ${filtTarj===t?"active":""}" data-tarj="${t}">${t==="todas"?"Todas":t}</button>`).join("")}</div>`:""}
+      </div>
+    </div>
+    ${ingMes?`<div class="balance-bar">
+      <div class="bal-item"><div class="bal-label">Ingresos</div><div class="bal-val" style="color:var(--green)">+$${fmt(ingMes.total)}</div></div>
+      <div class="bal-item"><div class="bal-label">Gastos</div><div class="bal-val" style="color:var(--red)">-$${fmt(d.total)}</div></div>
+      <div class="bal-item"><div class="bal-label">Balance</div><div class="bal-val" style="color:${ingMes.total-d.total>=0?"var(--green)":"var(--red)"}">${ingMes.total-d.total>=0?"+":""} $${fmt(ingMes.total-d.total)}</div></div>
+    </div>`:""}
+    ${catEntries.length>0?`<div class="donut-area">${donutSVG(d.cats)}<div class="donut-legend">
+      ${catEntries.slice(0,6).map(([name,val])=>`<div class="legend-row"><div class="legend-dot" style="background:${cc(name)}"></div><span class="legend-name">${name}</span><span class="legend-val">$${fmt(val)}</span></div>`).join("")}
+    </div></div>`:""}
+    <div class="items-list">
+      ${d.items.map(item=>`<div class="item-row">
+        <div class="item-dot" style="background:${cc(item.sub)}"></div>
+        <div>
+          <div class="item-name-row">${item.sub||item.cat||"Sin categoría"}
+            ${item.tarjeta?tag(item.tarjeta,"#f1f5f9","#64748b"):""}
+            ${item.cuotas>1?tag(`cuota ${item.num}/${item.cuotas}`,"#dcfce7","#16a34a"):""}
+            ${item.tipo?tag(item.tipo,"#f1f5f9","#94a3b8"):""}
+            ${reflexTag(item.reflex)}
+          </div>
+          <div class="item-meta">${item.fecha.toLocaleDateString("es-AR",{day:"2-digit",month:"short",year:"numeric"})}${item.desc?` · ${item.desc}`:""}${item.cuotas>1?` · total $${fmt(item.monto)}`:""}</div>
+        </div>
+        <div>
+          <div class="item-amount">$${fmt(item.cm)}</div>
+          ${item.cuotas>1?`<div class="item-of">de $${fmt(item.monto)}</div>`:""}
+        </div>
+      </div>`).join("")}
+    </div>
+    ${Object.keys(d.tarjs).length>0?`<div class="tarj-footer"><span style="font-size:11px;color:var(--muted);font-weight:600">Por tarjeta:</span>
+      ${Object.entries(d.tarjs).map(([t,v])=>`<div class="tarj-card"><div class="tarj-card-name">${t}</div><div class="tarj-card-val">$${fmt(v)}</div></div>`).join("")}
+    </div>`:""}
+  `;
+
+  document.querySelectorAll(".filter-btn").forEach(btn=>{
+    btn.addEventListener("click",()=>{ state.filtTarj=btn.dataset.tarj; renderDetail(); });
+  });
+}
+
+fetchData();
+</script>
+</body>
+</html>
